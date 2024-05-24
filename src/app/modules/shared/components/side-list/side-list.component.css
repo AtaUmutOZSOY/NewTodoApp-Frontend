@@ -1,0 +1,28 @@
+#wrapper {
+    display: flex;
+    align-items: stretch;
+  }
+  
+  #sidebar-wrapper {
+    min-height: 100vh;
+    width: 250px;
+    margin-left: -250px;
+    -webkit-transition: margin 0.25s ease-out;
+    -moz-transition: margin 0.25s ease-out;
+    -o-transition: margin 0.25s ease-out;
+    transition: margin 0.25s ease-out;
+  }
+  
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+  }
+  
+  #page-content-wrapper {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  #menu-toggle {
+    margin-left: 10px;
+  }
+  

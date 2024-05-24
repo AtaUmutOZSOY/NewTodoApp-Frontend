@@ -1,0 +1,22 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Todo Items</h2>
+      <button *ngIf="todoList" class="btn btn-primary ms-3" (click)="openCreateTodoItemModal()">Create Todo Item</button>
+    </div>
+    <p *ngIf="!todoList">No Todo List selected</p>
+  
+    <div *ngIf="todoItems && todoItems.length > 0">
+      <div *ngFor="let item of todoItems" class="card mb-3" [style.backgroundColor]="item.backgroundColor">
+        <div class="card-body">
+          <h5 class="card-title">{{ item.title }}</h5>
+          <p class="card-text">Priority: {{ item.priority }}</p>
+          <p class="card-text">Tags: {{ getTagsString(item.tags) }}</p>
+          <p class="card-text">Completed: {{ item.isCompleted ? 'Yes' : 'No' }}</p>
+        </div>
+      </div>
+    </div>
+    <p *ngIf="todoItems && todoItems.length === 0">No items in this list</p>
+  
+    <app-create-todo-item-modal [todoList]="todoList" (todoItemCreated)="handleTodoItemCreated($event)"></app-create-todo-item-modal>
+  </div>
+  

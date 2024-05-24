@@ -1,0 +1,13 @@
+.list-group-item-action {
+    cursor: pointer;
+  }
+  
+  .list-group-item-action:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .list-group-item-action.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
