@@ -157,6 +157,23 @@ export class TodoItemComponent implements OnChanges {
     });
   }
 
+  deleteTodoItem(id: number) {
+    this.todoItemService.deleteTodoItem(id).subscribe({
+      next: (response) => {
+        console.log('Todo item deleted successfully:', response);
+        this.loadTodoItems();
+      },
+      error: (error) => {
+        console.error('Error deleting todo item:', error);
+      }
+    });
+  }
+
+  markAsCompleted(id: number) {
+   
+    console.log('Mark as completed:', id);
+  }
+
   handleTodoItemCreated(todoItem: CreateTodoItemCommand) {
     this.todoItemCreated.emit(todoItem);
   }

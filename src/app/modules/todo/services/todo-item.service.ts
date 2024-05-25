@@ -12,20 +12,22 @@ import { TodoItem } from '../models/todo-item';
 })
 export class TodoItemService {
 
+  private baseUrl = environment.apiUrl + '/TodoItems';
 
-  private baseUrl = environment.apiUrl+'/TodoItems';
+  constructor(private httpClient: HttpClient) { }
 
-  constructor(private httpClient:HttpClient) { }
-
-  createTodoItem(createTodoItemCommand:CreateTodoItemCommand):Observable<ResponseModel>{
-    let newUrl = this.baseUrl+'/createTodoItem';
-    return this.httpClient.post<ResponseModel>(newUrl,createTodoItemCommand)
+  createTodoItem(createTodoItemCommand: CreateTodoItemCommand): Observable<ResponseModel> {
+    let newUrl = this.baseUrl + '/createTodoItem';
+    return this.httpClient.post<ResponseModel>(newUrl, createTodoItemCommand);
   }
 
-  getActiveTodoItemsByListId(listId:number):Observable<ListResponseModel<TodoItem>>{
+  getActiveTodoItemsByListId(listId: number): Observable<ListResponseModel<TodoItem>> {
     let newUrl = `${this.baseUrl}/getAllActiveTodoItems?listId=${listId}`;
-    return this.httpClient.get<ListResponseModel<TodoItem>>(newUrl)
+    return this.httpClient.get<ListResponseModel<TodoItem>>(newUrl);
   }
 
-
+  deleteTodoItem(id: number): Observable<ResponseModel> {
+    let newUrl = `${this.baseUrl}/deleteById/${id}`;
+    return this.httpClient.put<ResponseModel>(newUrl, null);
+  }
 }

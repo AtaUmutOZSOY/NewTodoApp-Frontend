@@ -19,8 +19,8 @@
               <i class="bi bi-three-dots-vertical"></i>
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <li><a class="dropdown-item" >Delete This Item</a></li>
-              <li><a class="dropdown-item" >Mark as Completed</a></li>
+              <li><a class="dropdown-item" (click)="deleteTodoItem(item.id)">Delete This Item</a></li>
+              <li><a class="dropdown-item" (click)="markAsCompleted(item.id)">Mark as Completed</a></li>
               <li><a class="dropdown-item" (click)="openRemoveTagsModal(item)">Remove Tags From Item</a></li>
             </ul>
           </div>
