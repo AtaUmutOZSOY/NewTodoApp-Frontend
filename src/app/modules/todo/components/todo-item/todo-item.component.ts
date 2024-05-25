@@ -5,6 +5,8 @@ import { TodoItemService } from '../../services/todo-item.service';
 import { TodoItem } from '../../models/todo-item';
 import { TodoItemTag } from '../../models/todo-item-tag';
 import { PriorityEnum } from 'src/app/modules/shared/enums/priority-enum';
+import { TodoItemTagService } from '../../services/todo-item-tag.service';
+import { CreateTodoItemTagCommand } from '../../commands/create-todo-item-tag-command';
 
 @Component({
   selector: 'app-todo-item',
@@ -24,7 +26,7 @@ export class TodoItemComponent implements OnChanges {
   isCompleted: boolean = false;
   note: string = '';
 
-  constructor(private todoItemService: TodoItemService) {}
+  constructor(private todoItemService: TodoItemService, private todoItemTagService: TodoItemTagService) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['todoList'] && this.todoList) {
@@ -39,8 +41,8 @@ export class TodoItemComponent implements OnChanges {
       this.todoItemService.getActiveTodoItemsByListId(this.todoList.id).subscribe({
         next: (response) => {
           if (response.success) {
-            console.log(response.data)
             this.todoItems = response.data;
+            this.loadTagsForTodoItems();
             this.updatePaginatedItems();
           }
         },
@@ -51,6 +53,21 @@ export class TodoItemComponent implements OnChanges {
     } else {
       this.todoItems = [];
     }
+  }
+
+  loadTagsForTodoItems() {
+    this.todoItems.forEach(item => {
+      this.todoItemTagService.getAllTodoItemTagsByTodoItemId(item.id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            item.tags = response.data;
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching tags:', error);
+        }
+      });
+    });
   }
 
   getTagsString(tags: TodoItemTag[] | null): string {
@@ -96,14 +113,14 @@ export class TodoItemComponent implements OnChanges {
       listId: this.todoList?.id || 0,
       tags: tagsArray,
       note: this.note,
-      priority: PriorityEnum.None  
+      priority: PriorityEnum.None
     };
 
     this.todoItemService.createTodoItem(newItem).subscribe({
       next: (response) => {
         if (response.success) {
           this.loadTodoItems();
-          this.todoItemCreated.emit(newItem); // Bu satırı ekleyin
+          this.todoItemCreated.emit(newItem);
           this.closeModal();
         }
       },
@@ -126,7 +143,7 @@ export class TodoItemComponent implements OnChanges {
     }
   }
 
-  handleTodoItemCreated(todoItem: CreateTodoItemCommand) { // Bu metodu ekleyin
+  handleTodoItemCreated(todoItem: CreateTodoItemCommand) {
     this.todoItemCreated.emit(todoItem);
   }
 
@@ -143,5 +160,33 @@ export class TodoItemComponent implements OnChanges {
 
   get totalPages(): number {
     return Math.ceil(this.todoItems.length / this.itemsPerPage);
+  }
+
+  addTag(todoItemId: number, tag: string) {
+    const createTodoItemTagCommand: CreateTodoItemTagCommand = {
+      todoItemId: todoItemId,
+      tag: tag
+    };
+    this.todoItemTagService.createTodoItemTag(createTodoItemTagCommand).subscribe({
+      next: (response) => {
+        console.log('Tag added successfully:', response);
+        this.loadTodoItems();
+      },
+      error: (error) => {
+        console.error('Error adding tag:', error);
+      }
+    });
+  }
+
+  removeTag(tagId: number) {
+    this.todoItemTagService.removeTodoItemTag(tagId).subscribe({
+      next: (response) => {
+        console.log('Tag removed successfully:', response);
+        this.loadTodoItems();
+      },
+      error: (error) => {
+        console.error('Error removing tag:', error);
+      }
+    });
   }
 }

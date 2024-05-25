@@ -8,9 +8,33 @@
   <div *ngIf="paginatedItems && paginatedItems.length > 0">
     <div *ngFor="let item of paginatedItems" class="card mb-3" [style.backgroundColor]="item.backgroundColor">
       <div class="card-body">
-        <h5 class="card-title">{{ item.title }}</h5>
-        <p class="card-text" *ngIf="item.note">Note: {{ item.note }}</p>
-        <p class="card-text">Tags: {{ getTagsString(item.tags) }}</p>
+        <div class="d-flex justify-content-between">
+          <div>
+            <h5 class="card-title">{{ item.title }}</h5>
+            <p class="card-text" *ngIf="item.note">Note: {{ item.note }}</p>
+            <p class="card-text">Tags: {{ getTagsString(item.tags) }}</p>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <li><a class="dropdown-item" >Delete This Item</a></li>
+              <li><a class="dropdown-item" >Mark as Completed</a></li>
+              <li><a class="dropdown-item" >Remove Tags From Item</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="text" #tagInput class="form-control" placeholder="Add tag">
+          <button class="btn btn-outline-secondary" type="button" (click)="addTag(item.id, tagInput.value)">Add Tag</button>
+        </div>
+        <ul class="list-group">
+          <li *ngFor="let tag of item.tags" class="list-group-item d-flex justify-content-between align-items-center">
+            {{ tag.tag }}
+            <button class="btn btn-danger btn-sm" (click)="removeTag(tag.id)">Remove</button>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

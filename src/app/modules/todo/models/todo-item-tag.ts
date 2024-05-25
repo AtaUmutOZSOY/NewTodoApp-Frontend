@@ -3,6 +3,5 @@ import { TodoItem } from "./todo-item";
 
 export interface TodoItemTag extends BaseAuditableEntity {
     todoItemId: number;
-    todoItem: TodoItem; 
     tag: string;
 }
