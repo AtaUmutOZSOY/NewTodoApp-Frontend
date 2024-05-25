@@ -1,8 +1,38 @@
 <div class="container mt-4">
-  <h2 class="mb-4">Todo Lists</h2>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Todo Lists</h2>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li><a class="dropdown-item" (click)="openCreateTodoListModal()">Create New List</a></li>
+      </ul>
+    </div>
+  </div>
+
   <ul class="list-group">
     <li *ngFor="let todoList of todoLists" class="list-group-item list-group-item-action" (click)="selectTodoList(todoList)">
       {{ todoList.title }}
     </li>
   </ul>
+
+  <!-- Create Todo List Modal -->
+  <div id="createTodoListModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create New Todo List</h5>
+          <button type="button" class="btn-close" (click)="closeModal('createTodoListModal')"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" [(ngModel)]="newTodoListTitle" class="form-control" placeholder="List Title">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal('createTodoListModal')">Close</button>
+          <button type="button" class="btn btn-primary" (click)="createTodoList()">Create List</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

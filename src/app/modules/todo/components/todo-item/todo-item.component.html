@@ -5,6 +5,21 @@
   </div>
   <p *ngIf="!todoList">No Todo List selected</p>
 
+  <div class="input-group mb-3">
+    <input type="text" class="form-control" placeholder="Search items" [(ngModel)]="searchText" (input)="filterItems()">
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterTagsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter by Tags
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="filterTagsDropdown">
+        <li><a class="dropdown-item" (click)="clearFilter()">Clear</a></li>
+        <li *ngFor="let tag of tagCounts">
+          <a class="dropdown-item" (click)="filterByTag(tag.tag)">{{ tag.tag }} ({{ tag.count }})</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
   <div *ngIf="paginatedItems && paginatedItems.length > 0">
     <div *ngFor="let item of paginatedItems" class="card mb-3" [style.backgroundColor]="item.backgroundColor">
       <div class="card-body">
@@ -22,6 +37,7 @@
               <li><a class="dropdown-item" (click)="deleteTodoItem(item.id)">Delete This Item</a></li>
               <li><a class="dropdown-item" (click)="markAsCompleted(item.id)">Mark as Completed</a></li>
               <li><a class="dropdown-item" (click)="openRemoveTagsModal(item)">Remove Tags From Item</a></li>
+              <li><a class="dropdown-item" (click)="openEditNoteModal(item)">Edit Note</a></li>
             </ul>
           </div>
         </div>
@@ -70,6 +86,24 @@
               <button class="btn btn-danger btn-sm" (click)="removeTag(tag.id)">Remove</button>
             </li>
           </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="editNoteModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Note</h5>
+          <button type="button" class="btn-close" (click)="closeModal('editNoteModal')"></button>
+        </div>
+        <div class="modal-body">
+          <textarea [(ngModel)]="editNote" class="form-control"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal('editNoteModal')">Close</button>
+          <button type="button" class="btn btn-primary" (click)="saveNote()">Save changes</button>
         </div>
       </div>
     </div>

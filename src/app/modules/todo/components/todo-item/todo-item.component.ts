@@ -7,6 +7,9 @@ import { TodoItemTag } from '../../models/todo-item-tag';
 import { PriorityEnum } from 'src/app/modules/shared/enums/priority-enum';
 import { TodoItemTagService } from '../../services/todo-item-tag.service';
 import { CreateTodoItemTagCommand } from '../../commands/create-todo-item-tag-command';
+import { TagCountDto } from '../../models/tag-count-dto';
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-todo-item',
@@ -17,6 +20,7 @@ export class TodoItemComponent implements OnChanges {
   @Input() todoList: TodoList | null = null;
   @Output() todoItemCreated = new EventEmitter<CreateTodoItemCommand>();
   todoItems: TodoItem[] = [];
+  filteredItems: TodoItem[] = [];
   paginatedItems: TodoItem[] = [];
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -25,7 +29,11 @@ export class TodoItemComponent implements OnChanges {
   tags: string = '';
   isCompleted: boolean = false;
   note: string = '';
+  editNote: string = '';
+  searchText: string = '';
+  tagCounts: TagCountDto[] = [];
   selectedTodoItemForRemovingTags: TodoItem | null = null;
+  selectedTodoItemForEditingNote: TodoItem | null = null;
 
   constructor(private todoItemService: TodoItemService, private todoItemTagService: TodoItemTagService) {}
 
@@ -44,7 +52,8 @@ export class TodoItemComponent implements OnChanges {
           if (response.success) {
             this.todoItems = response.data;
             this.loadTagsForTodoItems();
-            this.updatePaginatedItems();
+            this.updateTagCounts();
+            this.applyFilters();
           }
         },
         error: (error) => {
@@ -69,6 +78,44 @@ export class TodoItemComponent implements OnChanges {
         }
       });
     });
+  }
+
+  updateTagCounts() {
+    if (this.todoList) {
+      this.todoItemTagService.getTagCounts(this.todoList.id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.tagCounts = response.data;
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching tag counts:', error);
+        }
+      });
+    }
+  }
+
+  applyFilters() {
+    this.filteredItems = this.todoItems.filter(item =>
+      item.title.toLowerCase().includes(this.searchText.toLowerCase())
+    );
+    this.updatePaginatedItems();
+  }
+
+  filterItems() {
+    this.applyFilters();
+  }
+
+  filterByTag(tag: string) {
+    this.filteredItems = this.todoItems.filter(item =>
+      item.tags.some(t => t.tag === tag)
+    );
+    this.updatePaginatedItems();
+  }
+
+  clearFilter() {
+    this.filteredItems = [...this.todoItems];
+    this.updatePaginatedItems();
   }
 
   getTagsString(tags: TodoItemTag[] | null): string {
@@ -105,17 +152,28 @@ export class TodoItemComponent implements OnChanges {
     }
   }
 
-  openRemoveTagsModal(todoItem: TodoItem) {
-    this.selectedTodoItemForRemovingTags = todoItem;
-    const modal = document.getElementById('removeTagsModal');
-    if (modal) {
-      modal.classList.add('show');
-      modal.style.display = 'block';
-      document.body.classList.add('modal-open');
-      const backdrop = document.createElement('div');
-      backdrop.className = 'modal-backdrop fade show';
-      document.body.appendChild(backdrop);
-    }
+  createTodoItem() {
+    const tagsArray: string[] = this.tags.split(',').map(tag => tag.trim());
+    const newItem: CreateTodoItemCommand = {
+      title: this.title,
+      isCompleted: this.isCompleted,
+      backgroundColor: this.backgroundColor,
+      listId: this.todoList?.id || 0,
+      tags: tagsArray,
+      note: this.note,
+      priority: PriorityEnum.None
+    };
+
+    this.todoItemService.createTodoItem(newItem).subscribe({
+      next: () => {
+        this.loadTodoItems();
+        this.todoItemCreated.emit(newItem);
+        this.closeModal('createTodoItemModal');
+      },
+      error: (error) => {
+        console.error('Error creating todo item:', error);
+      }
+    });
   }
 
   closeModal(modalId: string) {
@@ -131,49 +189,6 @@ export class TodoItemComponent implements OnChanges {
     }
   }
 
-  createTodoItem() {
-    const tagsArray: string[] = this.tags.split(',').map(tag => tag.trim());
-    const newItem: CreateTodoItemCommand = {
-      title: this.title,
-      isCompleted: this.isCompleted,
-      backgroundColor: this.backgroundColor,
-      listId: this.todoList?.id || 0,
-      tags: tagsArray,
-      note: this.note,
-      priority: PriorityEnum.None
-    };
-
-    this.todoItemService.createTodoItem(newItem).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.loadTodoItems();
-          this.todoItemCreated.emit(newItem);
-          this.closeModal('createTodoItemModal');
-        }
-      },
-      error: (error) => {
-        console.error('Error creating todo item:', error);
-      }
-    });
-  }
-
-  deleteTodoItem(id: number) {
-    this.todoItemService.deleteTodoItem(id).subscribe({
-      next: (response) => {
-        console.log('Todo item deleted successfully:', response);
-        this.loadTodoItems();
-      },
-      error: (error) => {
-        console.error('Error deleting todo item:', error);
-      }
-    });
-  }
-
-  markAsCompleted(id: number) {
-   
-    console.log('Mark as completed:', id);
-  }
-
   handleTodoItemCreated(todoItem: CreateTodoItemCommand) {
     this.todoItemCreated.emit(todoItem);
   }
@@ -181,7 +196,7 @@ export class TodoItemComponent implements OnChanges {
   updatePaginatedItems() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedItems = this.todoItems.slice(startIndex, endIndex);
+    this.paginatedItems = this.filteredItems.slice(startIndex, endIndex);
   }
 
   setPage(page: number) {
@@ -190,7 +205,7 @@ export class TodoItemComponent implements OnChanges {
   }
 
   get totalPages(): number {
-    return Math.ceil(this.todoItems.length / this.itemsPerPage);
+    return Math.ceil(this.filteredItems.length / this.itemsPerPage);
   }
 
   addTag(todoItemId: number, tag: string) {
@@ -213,15 +228,67 @@ export class TodoItemComponent implements OnChanges {
     this.todoItemTagService.removeTodoItemTag(tagId).subscribe({
       next: (response) => {
         console.log('Tag removed successfully:', response);
-        this.todoItems.forEach(item => {
-          item.tags = item.tags.filter(tag => tag.id !== tagId);
-        });
-        this.updatePaginatedItems();
-        this.closeModal('removeTagsModal');
+        if (this.selectedTodoItemForRemovingTags) {
+          this.selectedTodoItemForRemovingTags.tags = this.selectedTodoItemForRemovingTags.tags.filter(tag => tag.id !== tagId);
+        }
+        this.loadTodoItems();
       },
       error: (error) => {
         console.error('Error removing tag:', error);
       }
     });
+  }
+
+  openRemoveTagsModal(item: TodoItem) {
+    this.selectedTodoItemForRemovingTags = item;
+    const modal = new bootstrap.Modal(document.getElementById('removeTagsModal'));
+    modal.show();
+  }
+
+  deleteTodoItem(id: number) {
+    this.todoItemService.deleteTodoItem(id).subscribe({
+      next: (response) => {
+        console.log('Todo item deleted successfully:', response);
+        this.loadTodoItems();
+      },
+      error: (error) => {
+        console.error('Error deleting todo item:', error);
+      }
+    });
+  }
+
+  markAsCompleted(id: number) {
+    this.todoItemService.markAsCompleted(id).subscribe({
+      next: (response) => {
+        console.log('Todo item marked as completed successfully:', response);
+        this.loadTodoItems();
+      },
+      error: (error) => {
+        console.error('Error marking todo item as completed:', error);
+      }
+    });
+  }
+
+  openEditNoteModal(item: TodoItem) {
+    this.selectedTodoItemForEditingNote = item;
+    this.editNote = item.note || '';
+    const modal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+    modal.show();
+  }
+
+  saveNote() {
+    if (this.selectedTodoItemForEditingNote) {
+      this.selectedTodoItemForEditingNote.note = this.editNote;
+      this.todoItemService.updateTodoItem(this.selectedTodoItemForEditingNote).subscribe({
+        next: (response) => {
+          console.log('Note updated successfully:', response);
+          this.closeModal('editNoteModal');
+          this.loadTodoItems();
+        },
+        error: (error) => {
+          console.error('Error updating note:', error);
+        }
+      });
+    }
   }
 }

@@ -6,6 +6,7 @@ import { TodoItemTag } from '../models/todo-item-tag';
 import { Observable } from 'rxjs';
 import { CreateTodoItemTagCommand } from '../commands/create-todo-item-tag-command';
 import { ResponseModel } from '../../shared/models/response-model';
+import { TagCountDto } from '../models/tag-count-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,11 @@ export class TodoItemTagService {
   removeTodoItemTag(id: number): Observable<ResponseModel> {
     let newUrl = `${this.baseUrl}/removeTodoItemTagFromTodoItem/${id}`;
     return this.httpClient.put<ResponseModel>(newUrl, null);
+  }
+
+  getTagCounts(listId: number): Observable<ListResponseModel<TagCountDto>> {
+    const newUrl = `${this.baseUrl}/getTagCounts?listId=${listId}`;
+    return this.httpClient.get<ListResponseModel<TagCountDto>>(newUrl);
   }
   
 }
