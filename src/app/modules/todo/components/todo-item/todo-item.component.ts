@@ -30,10 +30,12 @@ export class TodoItemComponent implements OnChanges {
   isCompleted: boolean = false;
   note: string = '';
   editNote: string = '';
+  selectedColor: string = '#ffffff';
   searchText: string = '';
   tagCounts: TagCountDto[] = [];
   selectedTodoItemForRemovingTags: TodoItem | null = null;
   selectedTodoItemForEditingNote: TodoItem | null = null;
+  selectedTodoItemForChangingBackground: TodoItem | null = null;
 
   constructor(private todoItemService: TodoItemService, private todoItemTagService: TodoItemTagService) {}
 
@@ -287,6 +289,29 @@ export class TodoItemComponent implements OnChanges {
         },
         error: (error) => {
           console.error('Error updating note:', error);
+        }
+      });
+    }
+  }
+
+  openChangeBackgroundColorModal(item: TodoItem) {
+    this.selectedTodoItemForChangingBackground = item;
+    this.selectedColor = item.backgroundColor || '#ffffff';
+    const modal = new bootstrap.Modal(document.getElementById('changeBackgroundColorModal'));
+    modal.show();
+  }
+
+  changeBackgroundColor() {
+    if (this.selectedTodoItemForChangingBackground) {
+      this.selectedTodoItemForChangingBackground.backgroundColor = this.selectedColor;
+      this.todoItemService.updateTodoItemBackgroundColor(this.selectedTodoItemForChangingBackground.id, this.selectedColor).subscribe({
+        next: (response) => {
+          console.log('Background color updated successfully:', response);
+          this.closeModal('changeBackgroundColorModal');
+          this.loadTodoItems();
+        },
+        error: (error) => {
+          console.error('Error updating background color:', error);
         }
       });
     }

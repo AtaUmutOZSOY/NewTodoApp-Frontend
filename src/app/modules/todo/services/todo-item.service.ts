@@ -40,4 +40,9 @@ export class TodoItemService {
     let newUrl = `${this.baseUrl}/updateTodoItem`;
     return this.httpClient.put<ResponseModel>(newUrl, todoItem);
   }
+
+  updateTodoItemBackgroundColor(id: number, newColor: string): Observable<ResponseModel> {
+    let newUrl = `${this.baseUrl}/updateTodoItemBackgroundColor`;
+    return this.httpClient.put<ResponseModel>(newUrl, { id, newColor });
+  }
 }

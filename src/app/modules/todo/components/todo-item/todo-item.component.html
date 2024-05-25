@@ -38,6 +38,7 @@
               <li><a class="dropdown-item" (click)="markAsCompleted(item.id)">Mark as Completed</a></li>
               <li><a class="dropdown-item" (click)="openRemoveTagsModal(item)">Remove Tags From Item</a></li>
               <li><a class="dropdown-item" (click)="openEditNoteModal(item)">Edit Note</a></li>
+              <li><a class="dropdown-item" (click)="openChangeBackgroundColorModal(item)">Change Background Color</a></li>
             </ul>
           </div>
         </div>
@@ -104,6 +105,24 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeModal('editNoteModal')">Close</button>
           <button type="button" class="btn btn-primary" (click)="saveNote()">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="changeBackgroundColorModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Change Background Color</h5>
+          <button type="button" class="btn-close" (click)="closeModal('changeBackgroundColorModal')"></button>
+        </div>
+        <div class="modal-body">
+          <input type="color" [(ngModel)]="selectedColor" class="form-control">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal('changeBackgroundColorModal')">Close</button>
+          <button type="button" class="btn btn-primary" (click)="changeBackgroundColor()">Save changes</button>
         </div>
       </div>
     </div>
