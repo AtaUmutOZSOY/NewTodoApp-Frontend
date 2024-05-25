@@ -21,7 +21,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <li><a class="dropdown-item" >Delete This Item</a></li>
               <li><a class="dropdown-item" >Mark as Completed</a></li>
-              <li><a class="dropdown-item" >Remove Tags From Item</a></li>
+              <li><a class="dropdown-item" (click)="openRemoveTagsModal(item)">Remove Tags From Item</a></li>
             </ul>
           </div>
         </div>
@@ -29,12 +29,6 @@
           <input type="text" #tagInput class="form-control" placeholder="Add tag">
           <button class="btn btn-outline-secondary" type="button" (click)="addTag(item.id, tagInput.value)">Add Tag</button>
         </div>
-        <ul class="list-group">
-          <li *ngFor="let tag of item.tags" class="list-group-item d-flex justify-content-between align-items-center">
-            {{ tag.tag }}
-            <button class="btn btn-danger btn-sm" (click)="removeTag(tag.id)">Remove</button>
-          </li>
-        </ul>
       </div>
     </div>
   </div>
@@ -61,4 +55,23 @@
   </nav>
 
   <app-create-todo-item-modal [todoList]="todoList" (todoItemCreated)="handleTodoItemCreated($event)"></app-create-todo-item-modal>
+
+  <div id="removeTagsModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Remove Tags</h5>
+          <button type="button" class="btn-close" (click)="closeModal('removeTagsModal')"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-group">
+            <li *ngFor="let tag of selectedTodoItemForRemovingTags?.tags" class="list-group-item d-flex justify-content-between align-items-center">
+              {{ tag.tag }}
+              <button class="btn btn-danger btn-sm" (click)="removeTag(tag.id)">Remove</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

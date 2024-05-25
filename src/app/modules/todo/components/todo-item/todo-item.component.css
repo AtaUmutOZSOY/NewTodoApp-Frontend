@@ -104,4 +104,22 @@
       padding: 0.25rem 0.5rem;
     }
   }
+  .input-group.mb-3 {
+    margin-top: 15px;
+  }
+  
+  .dropdown-menu {
+    min-width: 10rem;
+  }
+  
+  .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .list-group-item .btn-danger {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
   

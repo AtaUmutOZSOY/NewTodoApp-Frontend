@@ -25,6 +25,7 @@ export class TodoItemComponent implements OnChanges {
   tags: string = '';
   isCompleted: boolean = false;
   note: string = '';
+  selectedTodoItemForRemovingTags: TodoItem | null = null;
 
   constructor(private todoItemService: TodoItemService, private todoItemTagService: TodoItemTagService) {}
 
@@ -104,6 +105,32 @@ export class TodoItemComponent implements OnChanges {
     }
   }
 
+  openRemoveTagsModal(todoItem: TodoItem) {
+    this.selectedTodoItemForRemovingTags = todoItem;
+    const modal = document.getElementById('removeTagsModal');
+    if (modal) {
+      modal.classList.add('show');
+      modal.style.display = 'block';
+      document.body.classList.add('modal-open');
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop fade show';
+      document.body.appendChild(backdrop);
+    }
+  }
+
+  closeModal(modalId: string) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+      document.body.classList.remove('modal-open');
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        document.body.removeChild(backdrop);
+      }
+    }
+  }
+
   createTodoItem() {
     const tagsArray: string[] = this.tags.split(',').map(tag => tag.trim());
     const newItem: CreateTodoItemCommand = {
@@ -121,26 +148,13 @@ export class TodoItemComponent implements OnChanges {
         if (response.success) {
           this.loadTodoItems();
           this.todoItemCreated.emit(newItem);
-          this.closeModal();
+          this.closeModal('createTodoItemModal');
         }
       },
       error: (error) => {
         console.error('Error creating todo item:', error);
       }
     });
-  }
-
-  closeModal() {
-    const modal = document.getElementById('createTodoItemModal');
-    if (modal) {
-      modal.classList.remove('show');
-      modal.style.display = 'none';
-      document.body.classList.remove('modal-open');
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        document.body.removeChild(backdrop);
-      }
-    }
   }
 
   handleTodoItemCreated(todoItem: CreateTodoItemCommand) {
@@ -182,7 +196,11 @@ export class TodoItemComponent implements OnChanges {
     this.todoItemTagService.removeTodoItemTag(tagId).subscribe({
       next: (response) => {
         console.log('Tag removed successfully:', response);
-        this.loadTodoItems();
+        this.todoItems.forEach(item => {
+          item.tags = item.tags.filter(tag => tag.id !== tagId);
+        });
+        this.updatePaginatedItems();
+        this.closeModal('removeTagsModal');
       },
       error: (error) => {
         console.error('Error removing tag:', error);
