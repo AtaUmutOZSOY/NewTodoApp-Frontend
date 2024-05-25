@@ -1,4 +1,4 @@
-import { PriortyEnum } from "../../shared/enums/priority-enum";
+import { PriorityEnum } from "../../shared/enums/priority-enum";
 import { BaseAuditableEntity } from "../../shared/models/base-auditable-entity";
 import { TodoItemTag } from "./todo-item-tag";
 import { TodoList } from "./todo-list";
@@ -9,7 +9,8 @@ export interface TodoItem extends BaseAuditableEntity{
     backgroundColor: string;
     listId: number;
     list: TodoList;
-    priority: PriortyEnum;
+    priority: PriorityEnum;
     tags: TodoItemTag[];
+    note?:string
 
 }

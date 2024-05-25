@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CreateTodoItemCommand } from '../../../commands/create-todo-item-command';
 import { TodoList } from '../../../models/todo-list';
+import { PriorityEnum } from 'src/app/modules/shared/enums/priority-enum';
+import { TodoItemService } from '../../../services/todo-item.service';
 
 @Component({
   selector: 'app-create-todo-item-modal',
@@ -15,6 +17,12 @@ export class CreateTodoItemModalComponent {
   isCompleted: boolean = false;
   backgroundColor: string = '#ffffff';
   tags: string = '';
+  note: string = '';
+  priority: PriorityEnum = PriorityEnum.None;
+
+  PriorityEnum = PriorityEnum;
+
+  constructor(private todoItemService: TodoItemService) {}
 
   createTodoItem() {
     if (this.todoList) {
@@ -23,11 +31,25 @@ export class CreateTodoItemModalComponent {
         isCompleted: this.isCompleted,
         backgroundColor: this.backgroundColor,
         tags: this.tags.split(',').map(tag => tag.trim()),
-        listId: this.todoList.id
+        listId: this.todoList.id,
+        note: this.note,
+        priority: Number(this.priority) 
       };
 
-      this.todoItemCreated.emit(newTodoItem);
-      this.closeModal();
+      console.log(newTodoItem)
+      this.todoItemService.createTodoItem(newTodoItem).subscribe({
+        next: (response) => {
+          console.log('Todo item created successfully:', response);
+          this.closeModal();
+        },
+        error: (error) => {
+          console.error('Error creating todo item:', error);
+          // Detaylı hata mesajı
+          if (error.error) {
+            console.error('Server Error:', error.error);
+          }
+        }
+      });
     }
   }
 

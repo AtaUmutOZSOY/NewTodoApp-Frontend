@@ -1,11 +1,10 @@
 <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-3">
-        <app-todo-list (selectedTodoList)="selectedTodoList = $event"></app-todo-list>
-      </div>
-      <div class="col-md-9">
-        <app-todo-item [todoList]="selectedTodoList"></app-todo-item>
-      </div>
+  <div class="row">
+    <div class="col-md-3">
+      <app-todo-list (selectedTodoList)="selectedTodoList = $event"></app-todo-list>
+    </div>
+    <div class="col-md-9">
+      <app-todo-item [todoList]="selectedTodoList" (todoItemCreated)="handleTodoItemCreated($event)"></app-todo-item>
     </div>
   </div>
-  
+</div>

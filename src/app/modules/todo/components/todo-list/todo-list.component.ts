@@ -24,13 +24,18 @@ export class TodoListComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.todoLists = response.data.filter(x => x.status === EntityStatus.Active);
+          if (this.todoLists.length > 0) {
+            this.selectTodoList(this.todoLists[0]); 
+          }
         }
+      },
+      error: (error) => {
+        console.error('Error fetching todo lists:', error);
       }
     });
   }
 
   selectTodoList(todoList: TodoList) {
-    debugger
     this.selectedTodoList.emit(todoList);
   }
 }

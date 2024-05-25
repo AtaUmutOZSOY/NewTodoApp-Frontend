@@ -21,6 +21,9 @@ export class TodoAppLayoutComponent {
           if (response.success) {
             console.log('Todo item created successfully:', response.message);
           }
+        },
+        error: (error) => {
+          console.error('Error creating todo item:', error);
         }
       });
     }
