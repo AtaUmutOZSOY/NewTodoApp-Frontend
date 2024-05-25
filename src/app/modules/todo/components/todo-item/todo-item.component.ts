@@ -263,6 +263,10 @@ export class TodoItemComponent implements OnChanges {
     this.todoItemService.markAsCompleted(id).subscribe({
       next: (response) => {
         console.log('Todo item marked as completed successfully:', response);
+        const item = this.todoItems.find(x => x.id === id);
+        if (item) {
+          item.isCompleted = true;
+        }
         this.loadTodoItems();
       },
       error: (error) => {

@@ -25,7 +25,7 @@
       <div class="card-body">
         <div class="d-flex justify-content-between">
           <div>
-            <h5 class="card-title">{{ item.title }}</h5>
+            <h5 class="card-title" [ngClass]="{ 'completed': item.isCompleted }">{{ item.title }}</h5>
             <p class="card-text" *ngIf="item.note">Note: {{ item.note }}</p>
             <p class="card-text">Tags: {{ getTagsString(item.tags) }}</p>
           </div>
